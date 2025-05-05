@@ -58,13 +58,3 @@ OPENDB_REVISION ?= 02e6412842819a7afa0516405794823065e96627
 
 CGO_LDFLAGS = "-lstdc++ -L${OPENDB_PATH}/build/src/db -L${OPENDB_PATH}/build/src/def -L${OPENDB_PATH}/build/src/defin -L${OPENDB_PATH}/build/src/defout -L${OPENDB_PATH}/build/src/lef -L${OPENDB_PATH}/build/src/lefin -L${OPENDB_PATH}/build/src/lefout -L${OPENDB_PATH}/build/src/tm -L${OPENDB_PATH}/build/src/zlib -L${OPENDB_PATH}/build/src/zutil -L${OPENDB_PATH}/src/lef/lib -L${OPENDB_PATH}/src/def/lib"
 
-ifeq (, $(shell which $(GOCMD)))
- $(error "No go in PATH, go is needed to run the server")
-endif
-
-ifeq (, $(shell which cmake))
- $(error "No cmake in PATH, cmake is needed to compile OpenDB")
-endif
-ifeq (, $(shell which $(GITCMD)))
- $(error "No git in PATH, cmake is needed to compile OpenDB")
-endif

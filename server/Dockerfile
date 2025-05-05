@@ -1,9 +1,13 @@
-FROM golang:1.13.0-stretch AS builder
+FROM ubuntu:20.04 AS builder
 
 LABEL maintainer="Ahmed Agiza"
 
 ENV GO111MODULE=on \
-    CGO_ENABLED=1
+    CGO_ENABLED=1 \
+    PATH=/usr/local/go/bin:$PATH
+
+RUN apt update && apt upgrade -y && apt install wget -y
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
 
 
 # Install CMake for OpenDB
@@ -14,7 +18,8 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
 
 
 # Install Tcl, automake, pcre, flex, and bison for OpenDB
-RUN apt-get update && apt-get install -y tcl-dev automake autotools-dev libpcre3-dev flex bison && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y automake autotools-dev bison flex git libpcre3-dev tcl tcl-dev tcl8.6 tcl8.6-dev tk tk-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y automake autotools-dev bison flex git libpcre3-dev tcl tcl-dev && rm -rf /var/lib/apt/lists/*
 
 # Install SWIG for OpenDB
 RUN  wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
@@ -25,6 +30,11 @@ RUN  wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
     && cd .. \
     && rm -rf swig-rel-4.0.1
 
+# Install Go
+RUN wget https://go.dev/dl/go1.17.linux-amd64.tar.gz \
+    && rm -rf /usr/local/go/ \
+    && tar -C /usr/local/ -xzf go1.17.linux-amd64.tar.gz
+
 WORKDIR /build
 
 COPY server/go.mod .
@@ -34,6 +44,9 @@ RUN go mod download
 COPY Makefile .
 COPY config.mk .
 COPY server ./server
+
+ENV CPLUS_INCLUDE_PATH=/usr/include/tcl:$CPLUS_INCLUDE_PATH
+ENV C_INCLUDE_PATH=/usr/include/tcl:$C_INCLUDE_PATH
 
 RUN make build
 
